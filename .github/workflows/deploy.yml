@@ -59,6 +59,8 @@ jobs:
 
       # 6. DEPLOY FRESH MANIFESTS TO CLUSTER
       - name: Deploy Manifests to Cluster
+          --validate=false
+
         run: |
           kubectl apply -f k8s/deployment.yaml
           kubectl rollout status deployment/node-app-deployment

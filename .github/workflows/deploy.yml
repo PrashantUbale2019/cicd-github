@@ -55,7 +55,7 @@ jobs:
       - name: Update Deployment Manifest Image Tag
         run: |
           sed -i "s|image: node-app:v1.0.0|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|g" k8s/deployment.yaml
-          sed -i "s|imagePullPolicy: Never|imagePullPolicy: Always|g" k8s/deployment.yaml
+          sed -i "s|imagePullPolicy: Never|imagePullPolicy: Always|g" deployment.yaml
 
       # 6. DEPLOY FRESH MANIFESTS TO CLUSTER
       - name: Deploy Manifests to Cluster

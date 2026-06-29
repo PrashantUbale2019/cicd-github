@@ -42,7 +42,7 @@ jobs:
           # Tags the image with 'latest' and the specific commit hash for easy rollbacks
           tags: |
             ghcr.io/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/"node-app":${{ github.sha }}
 
       # 4. SETUP KUBECTL CLI
       - name: Setup Access to Kubernetes Cluster
@@ -54,7 +54,7 @@ jobs:
       # 5. DYNAMICALLY UPDATE THE MANIFEST IMAGE TAG
       - name: Update Deployment Manifest Image Tag
         run: |
-          sed -i "s|image: node-app:v1.0.0|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|g" k8s/deployment.yaml
+          sed -i "s|image: node-app:v1.0.0|image: ${{ env.REGISTRY }}/"node-app":${{ github.sha }}|g" k8s/deployment.yaml
           sed -i "s|imagePullPolicy: Never|imagePullPolicy: Always|g" k8s/deployment.yaml
 
       # 6. DEPLOY FRESH MANIFESTS TO CLUSTER

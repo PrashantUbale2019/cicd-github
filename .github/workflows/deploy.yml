@@ -41,7 +41,7 @@ jobs:
           push: true
           # Tags the image with 'latest' and the specific commit hash for easy rollbacks
           tags: |
-            ghcr.io/prashantubale2019/cicd-github:latest
+            ghcr.io/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
       # 4. SETUP KUBECTL CLI

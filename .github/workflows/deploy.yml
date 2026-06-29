@@ -49,7 +49,7 @@ jobs:
         uses: azure/k8s-set-context@v3
         with:
           method: kubeconfig
-          kubeconfig: ${{ secrets.KUBECONFIG_DATA }}
+          kubeconfig: ${{ secrets.KUBERNETES_KUBECONFIG }}
 
       # 5. DYNAMICALLY UPDATE THE MANIFEST IMAGE TAG
       - name: Update Deployment Manifest Image Tag

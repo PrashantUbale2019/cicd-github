@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}  
+  IMAGE_NAME: prashantubale2019/cicd-github  
 
 jobs:
   build-and-deploy:

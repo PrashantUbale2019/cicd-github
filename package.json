@@ -1,0 +1,18 @@
+{
+  "name": "docker-PME",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "error": "echo \"Error: There is an error.\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PrashantUbale2019/PlatFormEngineerTest.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

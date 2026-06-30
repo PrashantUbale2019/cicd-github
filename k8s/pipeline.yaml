@@ -23,7 +23,7 @@ spec:
       - name: node-container
         #image: node-app:latest
         image: docker.io/prashantubale2019/cicd-github:latest
-        imagePullPolicy: Never
+        imagePullPolicy: Always
         ports:
         - containerPort: 3000
         

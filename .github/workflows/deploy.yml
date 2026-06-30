@@ -20,7 +20,7 @@ jobs:
     steps:
       # 1. CHECKOUT SOURCE CODE
       - name: Checkout Source Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # 2. LOGIN TO GITHUB CONTAINER REGISTRY (GHCR)
       - name: Log in to GitHub Container Registry
@@ -55,7 +55,7 @@ jobs:
       - name: Update Deployment Manifest Image Tag
         run: |
           sed -i "s|image: node-app:v1.0.0|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|g" k8s/deployment.yaml
-          sed -i "s|imagePullPolicy: Never|imagePullPolicy: Always|g" k8s/pipeline.yaml
+          sed -i "s|imagePullPolicy: Always|imagePullPolicy: Always|g" k8s/pipeline.yaml
 
       # 6. DEPLOY FRESH MANIFESTS TO CLUSTER
       - name: Deploy Manifests to Cluster

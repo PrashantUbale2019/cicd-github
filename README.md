@@ -1,1 +1,75 @@
 # CICD-Github
+# Create a CI/CD pipeline using Githhub actions.
+
+### 1. Build container image
+### 2. Push image to container registry
+### 3. Deploy to Kubernetes
+
+### pipeline.yaml
+```
+name: Build and Deploy Express App to K8s
+
+on:
+  push:
+    branches:
+      - main # Triggers the pipeline whenever code is pushed to the main branch
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}  
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      // # 1. CHECKOUT SOURCE CODE
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      // # 2. LOGIN TO GITHUB CONTAINER REGISTRY (GHCR)
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }} # Automatically provided by GitHub Actions
+
+      // # 3. BUILD AND PUSH DOCKER IMAGE
+      - name: Convert repository to lowercase
+        run: |
+          echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          // # Tags the image with 'latest' and the specific commit hash for easy rollbacks
+          tags: |
+            ghcr.io/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      // # 4. SETUP KUBECTL CLI
+      - name: Setup Access to Kubernetes Cluster
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBERNETES_KUBECONFIG }}
+
+      // # 5. DYNAMICALLY UPDATE THE MANIFEST IMAGE TAG
+      - name: Update Deployment Manifest Image Tag
+        run: |
+          sed -i "s|image: node-app:v1.0.0|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|g" k8s/deployment.yaml
+          sed -i "s|imagePullPolicy: Never|imagePullPolicy: Always|g" k8s/deployment.yaml
+
+      // # 6. DEPLOY FRESH MANIFESTS TO CLUSTER
+      - name: Deploy Manifests to Cluster
+          --validate=false
+
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl rollout status deployment/node-app-deployment
+```

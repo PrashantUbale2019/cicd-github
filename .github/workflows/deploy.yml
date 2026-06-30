@@ -51,11 +51,7 @@ jobs:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBERNETES_KUBECONFIG }}
 
-      # 5. DYNAMICALLY UPDATE THE MANIFEST IMAGE TAG
-      - name: Update Deployment Manifest Image Tag
-        run: |
-          sed -i "s|image: node-app:v1.0.0|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|g" k8s/deployment.yaml
-          sed -i "s|imagePullPolicy: Always|imagePullPolicy: Always|g" k8s/pipeline.yaml
+
 
       # 6. DEPLOY FRESH MANIFESTS TO CLUSTER
       - name: Deploy Manifests to Cluster

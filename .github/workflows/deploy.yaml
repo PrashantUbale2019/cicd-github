@@ -60,11 +60,18 @@ jobs:
           kubeconfig: ${{ secrets.KUBERNETES_KUBECONFIG }}
 
       # 6. DEPLOY FRESH MANIFESTS TO CLUSTER
+      - name: Configure Kubernetes Authentication
+        run: |
+          # Clean out any old, broken configuration files completely
+          rm -rf ~/.kube
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBERNETES_KUBECONFIG }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
       - name: Deploy Manifests to Cluster
         run: |
-          # Forces the deployment to apply locally without waiting for an OpenAPI network check
-          kubectl apply -f k8s/pipeline.yaml --validate=false
+          # The --kubeconfig flag forces kubectl to read the clean file directly
+          kubectl apply -f k8s/pipeline.yaml --kubeconfig ~/.kube/config --validate=false
           
-          echo "Forcing cluster nodes to pull the fresh image tag..."
-          kubectl rollout restart deployment/my-app-deployment
-          kubectl rollout status deployment/my-app-deployment
+          kubectl rollout restart deployment/my-app-deployment --kubeconfig ~/.kube/config
+

@@ -62,5 +62,9 @@ jobs:
       # 6. DEPLOY FRESH MANIFESTS TO CLUSTER
       - name: Deploy Manifests to Cluster
         run: |
+          # Forces the deployment to apply locally without waiting for an OpenAPI network check
           kubectl apply -f k8s/pipeline.yaml --validate=false
-          kubectl rollout status deployment/node-app-deployment
+          
+          echo "Forcing cluster nodes to pull the fresh image tag..."
+          kubectl rollout restart deployment/my-app-deployment
+          kubectl rollout status deployment/my-app-deployment

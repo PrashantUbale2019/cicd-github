@@ -62,16 +62,22 @@ jobs:
       # 6. DEPLOY FRESH MANIFESTS TO CLUSTER
       - name: Configure Kubernetes Authentication
         run: |
-          # Clean out any old, broken configuration files completely
+          # 1. Force remove old configurations completely to prevent cached HTTPS locks
           rm -rf ~/.kube
           mkdir -p ~/.kube
+          
+          # 2. Write the fresh HTTP configuration from your GitHub Secret
           echo "${{ secrets.KUBERNETES_KUBECONFIG }}" > ~/.kube/config
           chmod 600 ~/.kube/config
 
       - name: Deploy Manifests to Cluster
         run: |
+          echo "Deploying to Minikube via background proxy..."
           # The --kubeconfig flag forces kubectl to read the clean file directly
           kubectl apply -f k8s/pipeline.yaml --kubeconfig ~/.kube/config --validate=false
           
+          echo "Triggering application rollout..."
           kubectl rollout restart deployment/my-app-deployment --kubeconfig ~/.kube/config
+          kubectl rollout status deployment/my-app-deployment --kubeconfig ~/.kube/config
+
 

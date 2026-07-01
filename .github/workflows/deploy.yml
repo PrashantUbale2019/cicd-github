@@ -34,15 +34,23 @@ jobs:
       - name: Convert repository to lowercase
         run: |
           echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+      
+
+          # STEP 2: Build the fresh container image and tag it with the unique commit SHA
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ./Dockerfile
           push: true
-          # Tags the image with 'latest' and the specific commit hash for easy rollbacks
           tags: |
-            ghcr.io/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ghcr.io/prashantubale2019/cicd-github:${{ github.sha }}
+            ghcr.io/prashantubale2019/cicd-github:latest
+
+      # STEP 3: Replace the old image text placeholder with the newly created image tag
+      - name: Update Kubernetes Manifest Image Tag
+        run: |
+          sed -i "s|image: node-app:v1.0.0|image: ghcr.io/prashantubale2019/cicd-github:${{ github.sha }}|g" k8s/pipeline.yml
 
       # 4. SETUP KUBECTL CLI
       - name: Setup Access to Kubernetes Cluster
@@ -51,12 +59,8 @@ jobs:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBERNETES_KUBECONFIG }}
 
-
-
       # 6. DEPLOY FRESH MANIFESTS TO CLUSTER
       - name: Deploy Manifests to Cluster
-          --validate=false
-
         run: |
           kubectl apply -f k8s/pipeline.yaml
           kubectl rollout status deployment/node-app-deployment

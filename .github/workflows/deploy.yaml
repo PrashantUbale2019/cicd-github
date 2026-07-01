@@ -50,14 +50,9 @@ jobs:
       # STEP 3: Replace the old image text placeholder with the newly created image tag
       - name: Update Kubernetes Manifest Image Tag
         run: |
-          sed -i "s|image: node-app:v1.0.0|image: ghcr.io/prashantubale2019/cicd-github:${{ github.sha }}|g" k8s/pipeline.yaml
-
-      # 4. SETUP KUBECTL CLI
-      - name: Setup Access to Kubernetes Cluster
-        uses: azure/k8s-set-context@v3
-        with:
-          method: kubeconfig
-          kubeconfig: ${{ secrets.KUBERNETES_KUBECONFIG }}
+          sed -i "s|image: .*|image: ghcr.io/prashantubale2019/cicd-github:${{ github.sha }}|g" k8s/pipeline.yaml
+  #sed -i "s|image: node-app:v1.0.0|image: ghcr.io/prashantubale2019/cicd-github:${{ github.sha }}|g" k8s/pipeline.yaml
+          
 
       # 6. DEPLOY FRESH MANIFESTS TO CLUSTER
       - name: Configure Kubernetes Authentication
